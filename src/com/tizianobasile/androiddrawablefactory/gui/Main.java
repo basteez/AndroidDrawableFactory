@@ -1,10 +1,20 @@
 package com.tizianobasile.androiddrawablefactory.gui;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
@@ -16,17 +26,18 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileFilter;
 
+import com.tizianobasile.androiddrawablefactory.AndroidDrawableFactory;
+import com.tizianobasile.androiddrawablefactory.utils.ImageUtils;
+
+@SuppressWarnings("serial")
 public class Main extends JFrame{
 
-	//constants
-	public static final String[] DENSITIES = {"ldpi", "mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi"};
-	public static final double[] DENSITY_MULTIPLIERS = {.75, 1, 1.5, 2, 3, 4};
+
 	
 	//Instance parameters
 	JLabel imageCanvas; //canvas that store the image to modify
@@ -34,10 +45,13 @@ public class Main extends JFrame{
 	JTextField projectPathField, sourceSizeTextField; //fields to store projectPath and source image size
 	JButton projectPathButton, createButton; //Buttons to open the path chooser and to start drawables conversion
 	JLabel sourceDensityLabel, sourceSizeLabel; //labels for source density and source size fields
-	JComboBox sourceDensityComboBox; //list of available densities
-	JCheckBox[] densitiesCheckBox; //array that stores the available density checkboxes
+	JComboBox<String> sourceDensityComboBox; //list of available densities
+	HashMap<String, JCheckBox> densitiesCheckBox; //HashMap that stores the available density checkboxes
 	JPanel mainPanel, densitiesPanel; //panel containing checkboxes
 	
+	File sourceImg; //source Image File object
+	String sourceFileName; //source file name
+	BufferedImage bufferedSource; //Source image BufferedImage object
 	
 	public Main()
 	{
@@ -46,30 +60,38 @@ public class Main extends JFrame{
 		initListeners(); //initialize ui event listeners
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void initUI()
 	{
 		//create components
 		imageCanvas = new JLabel(); //image to be used
-		imageCanvas.setIcon(new ImageIcon(getClass().getResource("placeholder.png")));
+		imageCanvas.setIcon(new ImageIcon(getClass().getResource("/res/placeholder.png")));
 		imageCanvas.setBackground(Color.decode("#33B5E5"));
 		imageCanvas.setBorder(BorderFactory.createLineBorder(Color.black));
+		imageCanvas.setToolTipText("Click to select an Image");
 		projectPathChooser = new JFileChooser(); //Launch directory selection
 		projectPathField = new JTextField(); //Retains  the path selected with JFileChooser
+		projectPathField.setEditable(false);
 		projectPathField.setText("project path");
 		projectPathButton = new JButton("Browse"); //Button that launch JFileChooser
 		sourceDensityLabel = new JLabel("Source Density"); //Label for the source density field
-		sourceDensityComboBox = new JComboBox(DENSITIES); //selector for the source density
+		sourceDensityComboBox = new JComboBox<String>(AndroidDrawableFactory.DENSITIES); //selector for the source density
 		sourceSizeLabel = new JLabel("Source Size"); //Label for source image's size
-		sourceSizeTextField = new JTextField("48"); //Field for source image's size
-		densitiesCheckBox = new JCheckBox[DENSITIES.length]; //checkbox array with densities
+		sourceSizeTextField = new JTextField(); //Field for source image's size
+		sourceSizeTextField.setEditable(false);
+		densitiesCheckBox = new HashMap<String, JCheckBox>(); //checkbox Map with densities
 		createButton = new JButton("make"); //button to begin drawable conversion
 		densitiesPanel = new JPanel();
 		//initialize checkboxes
-		for(int i = 0; i < DENSITIES.length; i++)
+		for(int i = 0; i < AndroidDrawableFactory.DENSITIES.length; i++)
 		{
-			densitiesCheckBox[i] = new JCheckBox(DENSITIES[i]);
-			densitiesCheckBox[i].setSelected(true);
-			densitiesPanel.add(densitiesCheckBox[i]);
+			String density = AndroidDrawableFactory.DENSITIES[i];
+			densitiesCheckBox.put(density, new JCheckBox(density));
+		}
+		for(JCheckBox e : densitiesCheckBox.values())
+		{
+			e.setSelected(true);
+			densitiesPanel.add(e);
 		}
 		densitiesPanel.add(createButton);
 		
@@ -122,12 +144,12 @@ public class Main extends JFrame{
 
 	private void initListeners()
 	{
+		//Source Image click listener
 		imageCanvas.addMouseListener(new MouseListener(){
-
 			@Override
 			public void mouseClicked(MouseEvent event)
 			{
-				imageChooser = new JFileChooser();
+				JFileChooser imageChooser = new JFileChooser();
 				imageChooser.setDialogTitle("Select an image");
 				imageChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				imageChooser.setFileFilter(new FileFilter(){
@@ -152,31 +174,100 @@ public class Main extends JFrame{
 				switch(imageChooser.showOpenDialog(imageCanvas))
 				{
 					case(JFileChooser.APPROVE_OPTION):
-						
-						System.out.println(imageChooser.getSelectedFile());
-						break;
-					case(JFileChooser.CANCEL_OPTION):
-						
-						break;
-					case(JFileChooser.ERROR_OPTION):
+						try {
+							sourceImg = new File(imageChooser.getSelectedFile().getPath());
+							sourceFileName = sourceImg.getName();
+							bufferedSource = ImageIO.read(sourceImg);
+							Image sourceResized = ImageUtils.resizeImage(bufferedSource, 80, 80);
+							imageCanvas.setIcon(new ImageIcon(sourceResized));
+							sourceSizeTextField.setText(Integer.toString(ImageUtils.getMaxWidth(sourceImg)));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 						break;
 				}
 			}
-
 			@Override
-			public void mouseEntered(MouseEvent arg0) {}
-
+			public void mouseEntered(MouseEvent arg0){}
 			@Override
-			public void mouseExited(MouseEvent arg0) {}
-
+			public void mouseExited(MouseEvent arg0){}
 			@Override
-			public void mousePressed(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
+			public void mousePressed(MouseEvent arg0){}
+			@Override
+			public void mouseReleased(MouseEvent arg0){}
+		});
+		//"Browse" button click listener
+		projectPathButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent event)
+			{
+				projectPathChooser = new JFileChooser();
+				projectPathChooser.setDialogTitle("Select you app's project path");
+				projectPathChooser.setAcceptAllFileFilterUsed(false);
+				projectPathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				switch(projectPathChooser.showOpenDialog(projectPathButton))
+				{
+					case JFileChooser.APPROVE_OPTION:
+						projectPathField.setText(projectPathChooser.getSelectedFile().getPath());
+						break;
+				}	
 			}
-
+		});
+		//"Make" button action listener
+		createButton.addActionListener(new ActionListener(){
 			@Override
-			public void mouseReleased(MouseEvent arg0) {}
+			public void actionPerformed(ActionEvent event)
+			{
+				if(bufferedSource == null || projectPathField.getText().equals("project path"))
+				{
+					JOptionPane.showMessageDialog(rootPane, "Please select an image and a valid project path", "Error", JOptionPane.ERROR_MESSAGE);	
+				}
+				else
+				{
+					//handy references to AndroidDrawableFactory.class constants
+					String[] densities = AndroidDrawableFactory.DENSITIES;
+					double[] density_ratio = AndroidDrawableFactory.DENSITY_MULTIPLIERS;
+					//create hashmap with density and density ratio
+					HashMap<String, Double> densityMap = new HashMap<String, Double>();
+					for(int i = 0; i < densities.length; i++)
+					{
+						densityMap.put(densities[i], density_ratio[i]);
+					}
+					double targetDensity = densityMap.get(sourceDensityComboBox.getSelectedItem().toString());
+					for(Map.Entry<String, Double> e : densityMap.entrySet())
+					{
+						JCheckBox singleDensity = densitiesCheckBox.get(e.getKey());
+						if(singleDensity.isSelected())
+						{
+							String folderName = "drawable-" + e.getKey();
+							double densityRatio = e.getValue();
+							
+							int newWidth = Math.round((float)(bufferedSource.getWidth() / targetDensity * densityRatio));
+							int newHeight = Math.round((float)(bufferedSource.getHeight() / targetDensity * densityRatio));
+							
+							try {
+								Image newImg = ImageUtils.resizeImage(bufferedSource, newWidth, newHeight);
+								File targetDir = new File(projectPathField.getText()+File.separator+folderName);
+								boolean dirExists = false;
+								//check if project dir exists, if not create it
+								dirExists = targetDir.exists() ? true : targetDir.mkdir();
+								if(dirExists)
+								{
+									BufferedImage bufImg = new BufferedImage(newImg.getWidth(null), newImg.getHeight(null), BufferedImage.TYPE_INT_RGB);
+									Graphics2D img2D = bufImg.createGraphics();
+									img2D.drawImage(newImg, null, null);
+									RenderedImage targetImg = (RenderedImage) bufImg;
+									File newFile = new File(targetDir + File.separator + sourceFileName);
+									ImageIO.write(targetImg, "png", newFile);
+								}
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}						
+						}
+
+					}	
+				}				
+			}
 		});
 	}
 }

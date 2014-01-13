@@ -7,6 +7,9 @@ import javax.swing.UnsupportedLookAndFeelException;
 import com.tizianobasile.androiddrawablefactory.gui.Main;
 
 public class AndroidDrawableFactory {
+	//constants
+	public static final String[] DENSITIES = {"ldpi", "mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi"};
+	public static final double[] DENSITY_MULTIPLIERS = {.75, 1, 1.5, 2, 3, 4};
 	public static void main(String... args)
 	{
 		try

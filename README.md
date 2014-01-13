@@ -1,9 +1,29 @@
 Android Drawable Factory
 ========================
-A Java application to create appropriate Drawable resources for you Android app.
+An application to create appropriate Drawable resources for you Android app.
 
-**This app is WiP** so don't use it untill it's completed
+##Installation
+You can choose:
+* Download the source from here and compile it by yourself
+* Download the compiled version ]on my dropbox account](https://dl.dropboxusercontent.com/u/26664675/AndroidDrawableFactory.zip) and unzip it
 
+##Usage
+To open the application:  
+
+* On Windows: double click on run.bat
+* On Gnu/Linux - OSX:
+    * Open a terminal session
+    * Type __chmod +x run.sh__
+    * launch run.sh
+
+* Once opened, just click onto the image on the left of the windows and choose the drawable (.jpg or .png) you want to convert
+
+![Main window](https://dl.dropboxusercontent.com/u/26664675/AndroidDrawableFactory/1.png)
+
+* Then click on browse and select your android project res folder's path.
+* In **source density** choose the density your image is drawn at
+* Select which density you want to create clicking on the checkboxes in the bottom of the window
+* click make and see the magic! :-)
 
 
 ###Credits

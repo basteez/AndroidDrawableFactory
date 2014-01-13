@@ -5,7 +5,7 @@ An application to create appropriate Drawable resources for you Android app.
 ##Installation
 You can choose:
 * Download the source from here and compile it by yourself
-* Download the compiled version ]on my dropbox account](https://dl.dropboxusercontent.com/u/26664675/AndroidDrawableFactory.zip) and unzip it
+* Download the compiled version [on my dropbox account](https://dl.dropboxusercontent.com/u/26664675/AndroidDrawableFactory.zip) and unzip it
 
 ##Usage
 To open the application:  

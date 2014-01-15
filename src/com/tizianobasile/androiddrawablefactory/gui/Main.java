@@ -19,6 +19,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -28,6 +29,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileFilter;
 
@@ -48,6 +50,7 @@ public class Main extends JFrame{
 	JComboBox<String> sourceDensityComboBox; //list of available densities
 	HashMap<String, JCheckBox> densitiesCheckBox; //HashMap that stores the available density checkboxes
 	JPanel mainPanel, densitiesPanel; //panel containing checkboxes
+	//JProgressBar progressBar;
 	
 	File sourceImg; //source Image File object
 	String sourceFileName; //source file name
@@ -224,50 +227,69 @@ public class Main extends JFrame{
 				}
 				else
 				{
-					//handy references to AndroidDrawableFactory.class constants
-					String[] densities = AndroidDrawableFactory.DENSITIES;
-					double[] density_ratio = AndroidDrawableFactory.DENSITY_MULTIPLIERS;
-					//create hashmap with density and density ratio
-					HashMap<String, Double> densityMap = new HashMap<String, Double>();
-					for(int i = 0; i < densities.length; i++)
-					{
-						densityMap.put(densities[i], density_ratio[i]);
-					}
-					double targetDensity = densityMap.get(sourceDensityComboBox.getSelectedItem().toString());
-					for(Map.Entry<String, Double> e : densityMap.entrySet())
-					{
-						JCheckBox singleDensity = densitiesCheckBox.get(e.getKey());
-						if(singleDensity.isSelected())
-						{
-							String folderName = "drawable-" + e.getKey();
-							double densityRatio = e.getValue();
-							
-							int newWidth = Math.round((float)(bufferedSource.getWidth() / targetDensity * densityRatio));
-							int newHeight = Math.round((float)(bufferedSource.getHeight() / targetDensity * densityRatio));
-							
-							try {
-								Image newImg = ImageUtils.resizeImage(bufferedSource, newWidth, newHeight);
-								File targetDir = new File(projectPathField.getText()+File.separator+folderName);
-								boolean dirExists = false;
-								//check if project dir exists, if not create it
-								dirExists = targetDir.exists() ? true : targetDir.mkdir();
-								if(dirExists)
-								{
-									BufferedImage bufImg = new BufferedImage(newImg.getWidth(null), newImg.getHeight(null), BufferedImage.TYPE_INT_RGB);
-									Graphics2D img2D = bufImg.createGraphics();
-									img2D.drawImage(newImg, null, null);
-									RenderedImage targetImg = (RenderedImage) bufImg;
-									File newFile = new File(targetDir + File.separator + sourceFileName);
-									ImageIO.write(targetImg, "png", newFile);
-								}
-							} catch (IOException e1) {
-								e1.printStackTrace();
-							}						
-						}
-
-					}	
+					//disable make button
+					createButton.setEnabled(false);
+					resizeThread = new Thread(resizeRunnable);
+					//progressBar = new JProgressBar(0, 100);
+					//progressBar.setIndeterminate(true);
+					//getContentPane().add(progressBar);
+					resizeThread.start();
 				}				
 			}
 		});
 	}
+	
+		
+	Thread resizeThread;
+	Runnable resizeRunnable = new Runnable(){
+
+		@Override
+		public void run()
+		{
+			//handy references to AndroidDrawableFactory.class constants
+			String[] densities = AndroidDrawableFactory.DENSITIES;
+			double[] density_ratio = AndroidDrawableFactory.DENSITY_MULTIPLIERS;
+			//create hashmap with density and density ratio
+			HashMap<String, Double> densityMap = new HashMap<String, Double>();
+			for(int i = 0; i < densities.length; i++)
+			{
+				densityMap.put(densities[i], density_ratio[i]);
+			}
+			double targetDensity = densityMap.get(sourceDensityComboBox.getSelectedItem().toString());
+			for(Map.Entry<String, Double> e : densityMap.entrySet())
+			{
+				JCheckBox singleDensity = densitiesCheckBox.get(e.getKey());
+				if(singleDensity.isSelected())
+				{
+					String folderName = "drawable-" + e.getKey();
+					double densityRatio = e.getValue();
+					
+					int newWidth = Math.round((float)(bufferedSource.getWidth() / targetDensity * densityRatio));
+					int newHeight = Math.round((float)(bufferedSource.getHeight() / targetDensity * densityRatio));
+					
+					try {
+						Image newImg = ImageUtils.resizeImage(bufferedSource, newWidth, newHeight);
+						File targetDir = new File(projectPathField.getText()+File.separator+folderName);
+						boolean dirExists = false;
+						//check if project dir exists, if not create it
+						dirExists = targetDir.exists() ? true : targetDir.mkdir();
+						if(dirExists)
+						{
+							BufferedImage bufImg = new BufferedImage(newImg.getWidth(null), newImg.getHeight(null), BufferedImage.TYPE_INT_RGB);
+							Graphics2D img2D = bufImg.createGraphics();
+							img2D.drawImage(newImg, null, null);
+							RenderedImage targetImg = (RenderedImage) bufImg;
+							File newFile = new File(targetDir + File.separator + sourceFileName);
+							ImageIO.write(targetImg, "png", newFile);
+						}
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}						
+				}
+
+			}
+			JOptionPane.showMessageDialog(getContentPane(), "Resize Completed!", "Completed", JOptionPane.OK_OPTION);
+			createButton.setEnabled(true);
+		}	
+	};
 }

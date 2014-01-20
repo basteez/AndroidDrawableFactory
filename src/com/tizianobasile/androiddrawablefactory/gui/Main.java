@@ -275,7 +275,7 @@ public class Main extends JFrame{
 						dirExists = targetDir.exists() ? true : targetDir.mkdir();
 						if(dirExists)
 						{
-							BufferedImage bufImg = new BufferedImage(newImg.getWidth(null), newImg.getHeight(null), BufferedImage.TYPE_INT_RGB);
+							BufferedImage bufImg = new BufferedImage(newImg.getWidth(null), newImg.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 							Graphics2D img2D = bufImg.createGraphics();
 							img2D.drawImage(newImg, null, null);
 							RenderedImage targetImg = (RenderedImage) bufImg;

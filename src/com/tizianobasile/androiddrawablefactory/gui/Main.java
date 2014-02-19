@@ -288,7 +288,7 @@ public class Main extends JFrame{
 				}
 
 			}
-			JOptionPane.showMessageDialog(getContentPane(), "Resize Completed!", "Completed", JOptionPane.OK_OPTION);
+			JOptionPane.showMessageDialog(getContentPane(), "Resize Completed!", "Completed", JOptionPane.INFORMATION_MESSAGE);
 			createButton.setEnabled(true);
 		}	
 	};

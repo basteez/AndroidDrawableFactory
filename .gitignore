@@ -2,4 +2,10 @@
 .directory
 .project
 .settings/
+nbproject/
+build/
+lib/
 bin/
+/nbproject/
+build.xml
+manifest.mf

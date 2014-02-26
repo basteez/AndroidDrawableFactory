@@ -12,6 +12,7 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -48,7 +49,7 @@ public class Main extends JFrame{
 	JButton projectPathButton, createButton; //Buttons to open the path chooser and to start drawables conversion
 	JLabel sourceDensityLabel, sourceSizeLabel; //labels for source density and source size fields
 	JComboBox<String> sourceDensityComboBox; //list of available densities
-	HashMap<String, JCheckBox> densitiesCheckBox; //HashMap that stores the available density checkboxes
+	LinkedHashMap<String, JCheckBox> densitiesCheckBox; //HashMap that stores the available density checkboxes
 	JPanel mainPanel, densitiesPanel; //panel containing checkboxes
 	//JProgressBar progressBar;
 	
@@ -82,7 +83,7 @@ public class Main extends JFrame{
 		sourceSizeLabel = new JLabel("Source Size"); //Label for source image's size
 		sourceSizeTextField = new JTextField(); //Field for source image's size
 		sourceSizeTextField.setEditable(false);
-		densitiesCheckBox = new HashMap<String, JCheckBox>(); //checkbox Map with densities
+		densitiesCheckBox = new LinkedHashMap<String, JCheckBox>(); //checkbox Map with densities
 		createButton = new JButton("make"); //button to begin drawable conversion
 		densitiesPanel = new JPanel();
 		//initialize checkboxes

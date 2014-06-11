@@ -21,6 +21,8 @@ THE SOFTWARE
 */
 package com.tizianobasile.androiddrawablefactory.gui;
 
+import com.tizianobasile.androiddrawablefactory.AndroidDrawableFactory;
+import com.tizianobasile.androiddrawablefactory.utils.ImageUtils;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -32,9 +34,11 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
-
+import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -52,14 +56,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileFilter;
 
-import com.tizianobasile.androiddrawablefactory.AndroidDrawableFactory;
-import com.tizianobasile.androiddrawablefactory.utils.ImageUtils;
-import java.util.HashMap;
-
 @SuppressWarnings("serial")
 public class Main extends JFrame{
 
-
+        //Locale atts
+        Locale locale;
+        ResourceBundle res;
 	
 	//Instance parameters
 	JLabel imageCanvas; //canvas that store the image to modify
@@ -79,6 +81,8 @@ public class Main extends JFrame{
 	public Main()
 	{
 		super("Main Window");
+                locale = new Locale(System.getProperty("user.language"));
+                res = ResourceBundle.getBundle("res.ADF", locale);
 		initUI(); //initialize ui elements
 		initListeners(); //initialize ui event listeners
 	}
@@ -91,19 +95,19 @@ public class Main extends JFrame{
 		imageCanvas.setIcon(new ImageIcon(getClass().getResource("/res/placeholder.png")));
 		imageCanvas.setBackground(Color.decode("#33B5E5"));
 		imageCanvas.setBorder(BorderFactory.createLineBorder(Color.black));
-		imageCanvas.setToolTipText("Click to select an Image");
+		imageCanvas.setToolTipText(res.getString("img_tooltip"));
 		projectPathChooser = new JFileChooser(); //Launch directory selection
 		projectPathField = new JTextField(); //Retains  the path selected with JFileChooser
 		projectPathField.setEditable(false);
-		projectPathField.setText("project path");
-		projectPathButton = new JButton("Browse"); //Button that launch JFileChooser
-		sourceDensityLabel = new JLabel("Source Density"); //Label for the source density field
+		projectPathField.setText(res.getString("project_path"));
+		projectPathButton = new JButton(res.getString("browse")); //Button that launch JFileChooser
+		sourceDensityLabel = new JLabel(res.getString("src_density")); //Label for the source density field
 		sourceDensityComboBox = new JComboBox<String>(AndroidDrawableFactory.DENSITIES); //selector for the source density
-		sourceSizeLabel = new JLabel("Source Size"); //Label for source image's size
+		sourceSizeLabel = new JLabel(res.getString("src_size")); //Label for source image's size
 		sourceSizeTextField = new JTextField(); //Field for source image's size
 		sourceSizeTextField.setEditable(false);
 		densitiesCheckBox = new LinkedHashMap<String, JCheckBox>(); //checkbox Map with densities
-		createButton = new JButton("make"); //button to begin drawable conversion
+		createButton = new JButton(res.getString("make")); //button to begin drawable conversion
 		densitiesPanel = new JPanel();
 		//initialize checkboxes
 		for(int i = 0; i < AndroidDrawableFactory.DENSITIES.length; i++)
@@ -173,7 +177,7 @@ public class Main extends JFrame{
 			public void mouseClicked(MouseEvent event)
 			{
 				JFileChooser imageChooser = new JFileChooser();
-				imageChooser.setDialogTitle("Select an image");
+				imageChooser.setDialogTitle(res.getString("img_select"));
 				imageChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				imageChooser.setFileFilter(new FileFilter(){
 
@@ -189,7 +193,7 @@ public class Main extends JFrame{
 
 					@Override
 					public String getDescription() {
-						return "Images (.jpg;.png)";
+						return res.getString("img_file_filter");
 					}
 					
 				});
@@ -225,7 +229,7 @@ public class Main extends JFrame{
 			public void actionPerformed(ActionEvent event)
 			{
 				projectPathChooser = new JFileChooser();
-				projectPathChooser.setDialogTitle("Select you app's project path");
+				projectPathChooser.setDialogTitle(res.getString("proj_path_select"));
 				projectPathChooser.setAcceptAllFileFilterUsed(false);
 				projectPathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				switch(projectPathChooser.showOpenDialog(projectPathButton))
@@ -241,9 +245,9 @@ public class Main extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent event)
 			{
-				if(bufferedSource == null || projectPathField.getText().equals("project path"))
+				if(bufferedSource == null || projectPathField.getText().equals(res.getString("project_path")))
 				{
-					JOptionPane.showMessageDialog(rootPane, "Please select an image and a valid project path", "Error", JOptionPane.ERROR_MESSAGE);	
+					JOptionPane.showMessageDialog(rootPane, res.getString("fields_error"), res.getString("error"), JOptionPane.ERROR_MESSAGE);	
 				}
 				else
 				{
@@ -305,7 +309,7 @@ public class Main extends JFrame{
 				}
 
 			}
-			JOptionPane.showMessageDialog(getContentPane(), "Resize Completed!", "Completed", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(getContentPane(), res.getString("resize_completed"), res.getString("completed"), JOptionPane.INFORMATION_MESSAGE);
 			createButton.setEnabled(true);
 		}	
 	};

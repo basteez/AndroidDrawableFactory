@@ -70,6 +70,8 @@ public class Main extends JFrame{
 	JComboBox<String> sourceDensityComboBox; //list of available densities
 	LinkedHashMap<String, JCheckBox> densitiesCheckBox; //HashMap that stores the available density checkboxes
 	JPanel mainPanel, densitiesPanel; //panel containing checkboxes
+	private File lastUsedSourceDirectory;
+	private File lastUsedProjectDirectory;
 	//JProgressBar progressBar;
 	
 	File sourceImg; //source Image File object
@@ -173,6 +175,9 @@ public class Main extends JFrame{
 			public void mouseClicked(MouseEvent event)
 			{
 				JFileChooser imageChooser = new JFileChooser();
+				if (lastUsedSourceDirectory != null) {
+					imageChooser.setCurrentDirectory(lastUsedSourceDirectory);
+				}
 				imageChooser.setDialogTitle("Select an image");
 				imageChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				imageChooser.setFileFilter(new FileFilter(){
@@ -199,6 +204,7 @@ public class Main extends JFrame{
 					case(JFileChooser.APPROVE_OPTION):
 						try {
 							sourceImg = new File(imageChooser.getSelectedFile().getPath());
+							lastUsedSourceDirectory = sourceImg.getParentFile();
 							sourceFileName = sourceImg.getName();
 							bufferedSource = ImageIO.read(sourceImg);
 							Image sourceResized = ImageUtils.resizeImage(bufferedSource, 80, 80);
@@ -225,15 +231,16 @@ public class Main extends JFrame{
 			public void actionPerformed(ActionEvent event)
 			{
 				projectPathChooser = new JFileChooser();
-				projectPathChooser.setDialogTitle("Select you app's project path");
+				if (lastUsedProjectDirectory != null) {
+					projectPathChooser.setCurrentDirectory(lastUsedProjectDirectory);
+				}
+				projectPathChooser.setDialogTitle("Project root directory of your app");
 				projectPathChooser.setAcceptAllFileFilterUsed(false);
 				projectPathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				switch(projectPathChooser.showOpenDialog(projectPathButton))
-				{
-					case JFileChooser.APPROVE_OPTION:
-						projectPathField.setText(projectPathChooser.getSelectedFile().getPath());
-						break;
-				}	
+				if(projectPathChooser.showOpenDialog(projectPathButton) ==  JFileChooser.APPROVE_OPTION) {
+					projectPathField.setText(projectPathChooser.getSelectedFile().getPath());
+					lastUsedProjectDirectory = projectPathChooser.getSelectedFile();
+				}
 			}
 		});
 		//"Make" button action listener
@@ -276,6 +283,11 @@ public class Main extends JFrame{
 			for(Map.Entry<String, Double> e : densityMap.entrySet())
 			{
 				JCheckBox singleDensity = densitiesCheckBox.get(e.getKey());
+				String projectPath = projectPathField.getText();
+				File projectResourceRoot = new File(projectPath);
+				if (!"res".equals(projectResourceRoot.getName())) {
+					projectResourceRoot = new File(projectResourceRoot, "res");
+				}
 				if(singleDensity.isSelected())
 				{
 					String folderName = "drawable-" + e.getKey();
@@ -286,10 +298,10 @@ public class Main extends JFrame{
 					
 					try {
 						Image newImg = ImageUtils.resizeImage(bufferedSource, newWidth, newHeight);
-						File targetDir = new File(projectPathField.getText()+File.separator+folderName);
+						File targetDir = new File(projectResourceRoot, folderName);
 						boolean dirExists = false;
 						//check if project dir exists, if not create it
-						dirExists = targetDir.exists() ? true : targetDir.mkdir();
+						dirExists = targetDir.exists() || targetDir.mkdir();
 						if(dirExists)
 						{
 							BufferedImage bufImg = new BufferedImage(newImg.getWidth(null), newImg.getHeight(null), BufferedImage.TYPE_INT_ARGB);
@@ -305,8 +317,13 @@ public class Main extends JFrame{
 				}
 
 			}
-			JOptionPane.showMessageDialog(getContentPane(), "Resize Completed!", "Completed", JOptionPane.INFORMATION_MESSAGE);
-			createButton.setEnabled(true);
+			javax.swing.SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					JOptionPane.showMessageDialog(getContentPane(), "Resize Completed!", "Completed", JOptionPane.INFORMATION_MESSAGE);
+					createButton.setEnabled(true);
+				}
+			});
 		}	
 	};
 }

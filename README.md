@@ -2,7 +2,6 @@ Android Drawable Factory
 ========================
 An application to create appropriate Drawable resources for you Android app.
 
-**N.B.**: I'm working on a IntelliJ plugin based on this tool, it's WIP but you can watch it [here](https://github.com/tizionario/adf-intellijPlugin)
 
 ##Installation
 You can choose:

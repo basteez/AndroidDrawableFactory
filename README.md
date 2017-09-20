@@ -3,12 +3,12 @@ Android Drawable Factory
 An application to create appropriate Drawable resources for you Android app.
 
 
-##Installation
+## Installation
 You can choose:
 * Download the source from here and compile it by yourself
 * [Download the latest compiled version](https://drive.google.com/folderview?id=0B906HQOAIPimLUQwWXNmWkNUUTQ&usp=sharing) and unzip it
 
-##Usage
+## Usage
 To open the application:  
 
 * On Windows: double click on run.bat
@@ -27,7 +27,7 @@ To open the application:
 * click make and see the magic! :-)
 
 
-###Credits
+### Credits
 Author: [Tiziano Basile (aka Tizionario)][G+]
 
 

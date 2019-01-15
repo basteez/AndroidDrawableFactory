@@ -1,5 +1,5 @@
-Android Drawable Factory
-========================
+# Android Drawable Factory [![Mentioned in Awesome Java](https://awesome.re/mentioned-badge.svg)](https://github.com/uhub/awesome-java)
+
 An application to create appropriate Drawable resources for you Android app.
 
 
@@ -19,7 +19,7 @@ To open the application:
 
 * Once opened, just click onto the image on the left of the windows and choose the drawable (.jpg or .png) you want to convert
 
-![Main window](https://dl.dropboxusercontent.com/u/26664675/AndroidDrawableFactory/1.png)
+![Main window](https://www.dropbox.com/s/dd21e2x9a1f6qsj/1.png?dl=0)
 
 * Then click on browse and select your android project res folder's path.
 * In **source density** choose the density your image is drawn at
